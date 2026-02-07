@@ -2,161 +2,185 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KANDAR CAPITAL | Bloomberg Terminal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KANDAR CAPITAL | SOVEREIGN SYSTEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --bg-bloomberg: #000000;
-            --panel-bloomberg: #121212;
-            --border-bloomberg: 1px solid #333;
-            --text-orange: #ff9900; /* Khas Bloomberg Terminal */
-            --text-white: #e0e0e0;
-            --signal-buy: #00ff00;
-            --signal-sell: #ff0000;
-            --font-data: 'Roboto Mono', monospace;
+            --bg-core: #020202;
+            --panel-bg: #0b0b0b;
+            --gold-primary: #D4AF37;
+            --gold-dim: #8a701e;
+            --signal-green: #00ff41;
+            --signal-red: #ff002b;
+            --tech-font: 'Share Tech Mono', monospace;
+            --head-font: 'Oswald', sans-serif;
+            --border-glow: 0 0 10px rgba(212, 175, 55, 0.15);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body {
-            background-color: var(--bg-bloomberg);
-            color: var(--text-white);
-            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-core);
+            color: #fff;
+            font-family: var(--head-font);
+            overflow: hidden; /* Supaya serasa aplikasi native */
             height: 100vh;
-            overflow: hidden;
         }
 
-        /* --- LOGIN SYSTEM --- */
-        #secure-gate {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: #000; z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-            flex-direction: column;
+        /* --- 1. BOOT SEQUENCE & LOGIN --- */
+        #boot-screen {
+            position: fixed; inset: 0; background: #000; z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .terminal-login {
-            border: 2px solid var(--text-orange); padding: 40px;
-            background: #0a0a0a; width: 320px; text-align: center;
+        
+        .logo-box {
+            border: 2px solid var(--gold-primary); padding: 20px 40px;
+            text-align: center; box-shadow: 0 0 30px rgba(212,175,55,0.2);
+            margin-bottom: 40px; animation: flicker 3s infinite;
         }
-        .terminal-input {
-            background: #000; border: 1px solid #555; color: var(--text-orange);
-            font-family: var(--font-data); font-size: 1.5rem; text-align: center;
-            width: 100%; padding: 10px; margin: 20px 0; letter-spacing: 5px; outline: none;
-        }
-        .terminal-btn {
-            background: var(--text-orange); color: #000; border: none;
-            padding: 10px 20px; font-weight: bold; width: 100%; cursor: pointer;
-        }
-        .terminal-btn:hover { background: #ffb84d; }
+        
+        .logo-text { font-size: 2.5rem; letter-spacing: 5px; color: var(--gold-primary); }
+        .logo-sub { font-family: var(--tech-font); font-size: 0.9rem; color: #666; letter-spacing: 2px; }
 
-        /* --- LAYOUT UTAMA --- */
-        #terminal-ui { display: none; height: 100vh; grid-template-rows: 40px 1fr 200px; }
+        .login-field {
+            background: transparent; border: none; border-bottom: 2px solid #333;
+            color: var(--gold-primary); font-family: var(--tech-font); font-size: 2rem;
+            text-align: center; width: 200px; outline: none; transition: 0.3s;
+            letter-spacing: 8px;
+        }
+        .login-field:focus { border-color: var(--gold-primary); width: 250px; }
+        
+        .access-btn {
+            margin-top: 30px; background: var(--gold-primary); color: #000;
+            border: none; padding: 15px 50px; font-weight: bold; cursor: pointer;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            transition: 0.2s;
+        }
+        .access-btn:active { transform: scale(0.95); background: #fff; }
 
-        /* HEADER TICKER */
-        .top-ticker { height: 40px; border-bottom: var(--border-bloomberg); background: #000; }
+        /* --- 2. MAIN INTERFACE --- */
+        #interface { display: none; height: 100vh; grid-template-rows: 50px 1fr 40px; }
 
-        /* MIDDLE SECTION (CHART & SIGNALS) */
-        .middle-grid {
-            display: grid;
-            grid-template-columns: 1fr 350px; /* Chart Lebar, Sinyal di Kanan */
-            height: 100%;
-            overflow: hidden;
+        /* HEADER */
+        header {
+            background: var(--panel-bg); border-bottom: 1px solid #222;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+        }
+        .sys-status { font-family: var(--tech-font); font-size: 0.8rem; color: var(--signal-green); }
+
+        /* LAYOUT GRID */
+        .main-grid {
+            display: grid; grid-template-columns: 1fr 320px;
+            overflow: hidden; height: 100%;
         }
 
-        /* CHART AREA */
-        .chart-area { border-right: var(--border-bloomberg); position: relative; }
-        .watermark {
+        /* CHART SECTION */
+        .chart-section { position: relative; border-right: 1px solid #222; }
+        .overlay-info {
             position: absolute; top: 10px; left: 10px; z-index: 10;
-            background: rgba(0,0,0,0.7); padding: 5px 10px; border: 1px solid var(--text-orange);
-            color: var(--text-orange); font-family: var(--font-data); font-weight: bold; font-size: 0.9rem;
+            display: flex; gap: 10px;
+        }
+        .info-badge {
+            background: rgba(0,0,0,0.8); border: 1px solid #333;
+            padding: 5px 10px; font-size: 0.7rem; color: #888; font-family: var(--tech-font);
         }
 
-        /* SIGNAL TOWER (SIDEBAR) */
-        .signal-tower {
-            background: var(--panel-bloomberg);
-            display: flex; flex-direction: column;
-            overflow-y: auto;
-            border-left: var(--border-bloomberg);
-        }
-        .signal-header {
-            background: #222; color: var(--text-orange); padding: 8px;
-            text-align: center; font-family: var(--font-data); font-size: 0.8rem; border-bottom: 1px solid #444;
-        }
-        .signal-box { height: 33.3%; border-bottom: var(--border-bloomberg); position: relative; }
-
-        /* BOTTOM SECTION (MAP & NEWS) */
-        .bottom-grid {
-            border-top: var(--border-bloomberg);
-            display: grid; grid-template-columns: 1fr 1fr;
-            height: 200px; background: var(--panel-bloomberg);
-        }
-        .bottom-panel { border-right: var(--border-bloomberg); overflow: hidden; position: relative; }
-        .panel-label {
-            position: absolute; top: 0; left: 0; background: var(--text-orange); color: #000;
-            padding: 2px 8px; font-size: 0.7rem; font-weight: bold; z-index: 5;
+        /* RIGHT COMMAND CENTER */
+        .command-center {
+            background: var(--panel-bg); display: flex; flex-direction: column;
+            overflow-y: auto; border-left: 1px solid #333;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 1024px) {
-            #terminal-ui { grid-template-rows: 40px auto auto; overflow-y: auto; height: auto; }
-            .middle-grid { grid-template-columns: 1fr; height: auto; }
-            .chart-area { height: 400px; }
-            .signal-tower { height: auto; }
-            .signal-box { height: 250px; }
-            .bottom-grid { grid-template-columns: 1fr; height: auto; }
-            .bottom-panel { height: 300px; }
+        .panel-block {
+            padding: 15px; border-bottom: 1px solid #222;
+        }
+        
+        .panel-title {
+            color: var(--gold-primary); font-size: 0.9rem; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        
+        /* SIGNAL METERS */
+        .signal-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; background: #050505; padding: 8px; border-radius: 4px;
+        }
+        .tf-label { font-family: var(--tech-font); font-weight: bold; width: 40px; color: #fff; }
+        .meter-bg { flex: 1; height: 6px; background: #222; margin: 0 10px; border-radius: 3px; position: relative; }
+        .meter-fill { height: 100%; border-radius: 3px; transition: width 1s; }
+        .signal-text { font-size: 0.7rem; font-weight: bold; width: 60px; text-align: right; }
+
+        /* NEWS FEED MINI */
+        .news-scroller { height: 150px; overflow-y: scroll; font-size: 0.8rem; color: #aaa; }
+        .news-scroller::-webkit-scrollbar { width: 3px; }
+        .news-scroller::-webkit-scrollbar-thumb { background: #333; }
+
+        /* FOOTER */
+        footer {
+            background: #000; border-top: 1px solid var(--gold-dim);
+            display: flex; align-items: center;
+        }
+
+        /* ANIMATIONS */
+        @keyframes flicker { 0%, 100% { opacity: 1; box-shadow: 0 0 30px rgba(212,175,55,0.2); } 50% { opacity: 0.8; box-shadow: 0 0 10px rgba(212,175,55,0.1); } }
+        .blink { animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* MOBILE OPTIMIZATION */
+        @media (max-width: 768px) {
+            .main-grid { grid-template-columns: 1fr; grid-template-rows: 50% 50%; }
+            .chart-section { height: 100%; }
+            .command-center { height: 100%; border-left: none; border-top: 2px solid var(--gold-primary); }
+            #interface { grid-template-rows: 50px 1fr; } /* Hide footer on small mobile if crowded */
+            footer { display: none; }
+            .login-field { width: 80%; }
         }
     </style>
 </head>
 <body>
 
-    <div id="secure-gate">
-        <div class="terminal-login">
-            <h2 style="color:var(--text-orange); font-family:'Roboto Mono'; margin-bottom:10px;">KANDAR TERMINAL</h2>
-            <p style="color:#666; font-size:0.8rem;">AUTHORIZED PERSONNEL ONLY</p>
-            <input type="password" id="passInput" class="terminal-input" placeholder="PIN CODE">
-            <button onclick="unlockTerminal()" class="terminal-btn">ACCESS SYSTEM</button>
-            <p id="errorMsg" style="color:red; margin-top:10px; display:none; font-family:'Roboto Mono';">ACCESS DENIED</p>
+    <div id="boot-screen">
+        <div class="logo-box">
+            <div class="logo-text">KANDAR</div>
+            <div class="logo-sub">QUANTUM CAPITAL SYSTEM</div>
         </div>
+        
+        <div style="font-family:var(--tech-font); color:#444; margin-bottom:10px;">ENTER SECURITY PIN</div>
+        <input type="tel" id="pinInput" class="login-field" maxlength="6" placeholder="******">
+        
+        <button onclick="systemAccess()" class="access-btn">INITIALIZE SYSTEM</button>
+        <div id="error-log" style="color:var(--signal-red); margin-top:20px; font-family:var(--tech-font); display:none;">> ERROR: INVALID CREDENTIALS</div>
     </div>
 
-    <div id="terminal-ui">
+    <div id="interface">
         
-        <div class="top-ticker">
-            <div class="tradingview-widget-container">
-                <div class="tradingview-widget-container__widget"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-                {
-                "symbols": [
-                    {"proName": "OANDA:XAUUSD", "title": "GOLD LIVE"},
-                    {"proName": "FX:EURUSD", "title": "EUR/USD"},
-                    {"proName": "FX:USDJPY", "title": "USD/JPY"},
-                    {"proName": "INDEX:DXY", "title": "DXY INDEX"},
-                    {"proName": "BITSTAMP:BTCUSD", "title": "BITCOIN"}
-                ],
-                "showSymbolLogo": false,
-                "colorTheme": "dark",
-                "isTransparent": false,
-                "displayMode": "regular",
-                "locale": "id"
-                }
-                </script>
+        <header>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-shield-alt" style="color:var(--gold-primary)"></i>
+                <span style="font-weight:bold; letter-spacing:1px;">KANDAR<span style="color:var(--gold-primary)">CAPITAL</span></span>
             </div>
-        </div>
+            <div class="sys-status">
+                <span class="blink">●</span> LIVE FEED | LONDON SESSION
+            </div>
+        </header>
 
-        <div class="middle-grid">
+        <div class="main-grid">
             
-            <div class="chart-area">
-                <div class="watermark">KANDAR CAPITAL ANALYTICS</div>
+            <div class="chart-section">
+                <div class="overlay-info">
+                    <div class="info-badge">XAUUSD</div>
+                    <div class="info-badge" style="color:var(--gold-primary)">M15</div>
+                </div>
                 <div class="tradingview-widget-container" style="height:100%;width:100%">
                     <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
                     {
                     "autosize": true,
                     "symbol": "OANDA:XAUUSD",
-                    "interval": "60",
+                    "interval": "15",
                     "timezone": "Asia/Jakarta",
                     "theme": "dark",
                     "style": "1",
@@ -166,19 +190,54 @@
                     "hide_legend": false,
                     "save_image": false,
                     "backgroundColor": "rgba(0, 0, 0, 1)",
-                    "gridColor": "rgba(40, 40, 40, 1)",
-                    "calendar": true,
-                    "hide_volume": true,
+                    "gridColor": "rgba(30, 30, 30, 1)",
                     "support_host": "https://www.tradingview.com"
                     }
                     </script>
                 </div>
             </div>
 
-            <div class="signal-tower">
+            <div class="command-center">
                 
-                <div class="signal-header">SCALPING (M15) - SHORT TERM</div>
-                <div class="signal-box">
+                <div class="panel-block" style="text-align:center;">
+                    <div id="clock" style="font-family:var(--tech-font); font-size:2rem; color:#fff;">00:00:00</div>
+                    <div style="font-size:0.8rem; color:#666;">SERVER TIME (WIB)</div>
+                </div>
+
+                <div class="panel-block">
+                    <div class="panel-title">
+                        <span><i class="fas fa-crosshairs"></i> SIGNAL MATRIX</span>
+                        <i class="fas fa-wifi" style="color:var(--signal-green)"></i>
+                    </div>
+                    
+                    <div class="signal-row">
+                        <div class="tf-label">M5</div>
+                        <div class="meter-bg"><div class="meter-fill" style="width:80%; background:var(--signal-green)"></div></div>
+                        <div class="signal-text" style="color:var(--signal-green)">BUY</div>
+                    </div>
+                    <div class="signal-row">
+                        <div class="tf-label">M15</div>
+                        <div class="meter-bg"><div class="meter-fill" style="width:60%; background:var(--signal-green)"></div></div>
+                        <div class="signal-text" style="color:var(--signal-green)">STRONG</div>
+                    </div>
+                    <div class="signal-row">
+                        <div class="tf-label">H1</div>
+                        <div class="meter-bg"><div class="meter-fill" style="width:40%; background:#888"></div></div>
+                        <div class="signal-text" style="color:#aaa">WAIT</div>
+                    </div>
+                    <div class="signal-row">
+                        <div class="tf-label">H4</div>
+                        <div class="meter-bg"><div class="meter-fill" style="width:70%; background:var(--signal-red)"></div></div>
+                        <div class="signal-text" style="color:var(--signal-red)">SELL</div>
+                    </div>
+                    
+                    <div style="font-size:0.7rem; color:#555; margin-top:10px; text-align:center;">
+                        AI CONFIDENCE: <span style="color:var(--gold-primary)">87.4%</span>
+                    </div>
+                </div>
+
+                <div class="panel-block" style="height:250px;">
+                    <div class="panel-title">LIVE SENTIMENT</div>
                     <div class="tradingview-widget-container" style="height:100%;width:100%">
                         <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
                         <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
@@ -188,7 +247,7 @@
                         "isTransparent": true,
                         "height": "100%",
                         "symbol": "OANDA:XAUUSD",
-                        "showIntervalTabs": false,
+                        "showIntervalTabs": true,
                         "displayMode": "single",
                         "locale": "id",
                         "colorTheme": "dark"
@@ -197,41 +256,19 @@
                     </div>
                 </div>
 
-                <div class="signal-header">INTRADAY (H1) - MEDIUM TERM</div>
-                <div class="signal-box">
+                <div class="panel-block" style="flex:1;">
+                    <div class="panel-title">HIGH IMPACT NEWS</div>
                     <div class="tradingview-widget-container" style="height:100%;width:100%">
                         <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
                         {
-                        "interval": "1h",
-                        "width": "100%",
+                        "colorTheme": "dark",
                         "isTransparent": true,
-                        "height": "100%",
-                        "symbol": "OANDA:XAUUSD",
-                        "showIntervalTabs": false,
-                        "displayMode": "single",
-                        "locale": "id",
-                        "colorTheme": "dark"
-                        }
-                        </script>
-                    </div>
-                </div>
-
-                <div class="signal-header">SWING (D1) - LONG TERM</div>
-                <div class="signal-box" style="border-bottom:none;">
-                    <div class="tradingview-widget-container" style="height:100%;width:100%">
-                        <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
-                        {
-                        "interval": "1D",
                         "width": "100%",
-                        "isTransparent": true,
                         "height": "100%",
-                        "symbol": "OANDA:XAUUSD",
-                        "showIntervalTabs": false,
-                        "displayMode": "single",
                         "locale": "id",
-                        "colorTheme": "dark"
+                        "importanceFilter": "0,1",
+                        "currencyFilter": "USD"
                         }
                         </script>
                     </div>
@@ -240,80 +277,58 @@
             </div>
         </div>
 
-        <div class="bottom-grid">
-            
-            <div class="bottom-panel">
-                <div class="panel-label">MARKET HEATMAP</div>
-                <div class="tradingview-widget-container" style="height:100%;width:100%">
-                    <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
-                    {
-                    "width": "100%",
-                    "height": "100%",
-                    "currencies": [
-                        "EUR",
-                        "USD",
-                        "JPY",
-                        "GBP",
-                        "CHF",
-                        "AUD",
-                        "CAD"
-                    ],
-                    "isTransparent": false,
-                    "colorTheme": "dark",
-                    "locale": "id",
-                    "backgroundColor": "#000000"
-                    }
-                    </script>
-                </div>
+        <footer>
+            <div class="tradingview-widget-container">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+                {
+                "symbols": [
+                    {"proName": "OANDA:XAUUSD", "title": "GOLD"},
+                    {"proName": "FX:EURUSD", "title": "EUR/USD"},
+                    {"proName": "FX:GBPUSD", "title": "GBP/USD"},
+                    {"proName": "INDEX:DXY", "title": "DXY"}
+                ],
+                "showSymbolLogo": true,
+                "colorTheme": "dark",
+                "isTransparent": true,
+                "displayMode": "compact",
+                "locale": "id"
+                }
+                </script>
             </div>
-
-            <div class="bottom-panel" style="border-right:none;">
-                <div class="panel-label">GLOBAL NEWS WIRE</div>
-                <div class="tradingview-widget-container" style="height:100%;width:100%">
-                    <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
-                    {
-                    "feedMode": "market",
-                    "market": "forex",
-                    "isTransparent": false,
-                    "displayMode": "regular",
-                    "width": "100%",
-                    "height": "100%",
-                    "colorTheme": "dark",
-                    "locale": "id",
-                    "backgroundColor": "#000000"
-                    }
-                    </script>
-                </div>
-            </div>
-
-        </div>
+        </footer>
     </div>
 
     <script>
-        // SCRIPT PENGAMAN & FULLSCREEN
-        function unlockTerminal() {
-            var pin = document.getElementById("passInput").value;
-            if (pin === "258369") {
-                document.getElementById("secure-gate").style.display = "none";
-                document.getElementById("terminal-ui").style.display = "grid";
-                // Request Full Screen biar kayak software asli
-                var elem = document.documentElement;
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                }
+        // LOGIC LOGIN
+        function systemAccess() {
+            var pin = document.getElementById('pinInput').value;
+            if(pin === "258369") {
+                // Efek Masuk
+                document.getElementById('boot-screen').style.transition = "0.5s";
+                document.getElementById('boot-screen').style.transform = "translateY(-100%)";
+                
+                setTimeout(() => {
+                    document.getElementById('interface').style.display = "grid";
+                }, 300);
             } else {
-                document.getElementById("errorMsg").style.display = "block";
+                var err = document.getElementById('error-log');
+                err.style.display = "block";
+                document.getElementById('pinInput').value = "";
+                setTimeout(() => { err.style.display = "none"; }, 2000);
             }
         }
 
-        // Enter key support
-        document.getElementById("passInput").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                unlockTerminal();
-            }
-        });
+        // JAM DIGITAL
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB');
+        }, 1000);
+
+        // AUTO FOCUS
+        window.onload = function() {
+            document.getElementById('pinInput').focus();
+        };
     </script>
 </body>
 </html>
