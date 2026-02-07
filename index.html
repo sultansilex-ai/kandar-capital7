@@ -2,333 +2,101 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KANDAR CAPITAL | SOVEREIGN SYSTEM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KANDAR MULTI-GAME PLATFORM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --bg-core: #020202;
-            --panel-bg: #0b0b0b;
-            --gold-primary: #D4AF37;
-            --gold-dim: #8a701e;
-            --signal-green: #00ff41;
-            --signal-red: #ff002b;
-            --tech-font: 'Share Tech Mono', monospace;
-            --head-font: 'Oswald', sans-serif;
-            --border-glow: 0 0 10px rgba(212, 175, 55, 0.15);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            background-color: var(--bg-core);
-            color: #fff;
-            font-family: var(--head-font);
-            overflow: hidden; /* Supaya serasa aplikasi native */
-            height: 100vh;
-        }
-
-        /* --- 1. BOOT SEQUENCE & LOGIN --- */
-        #boot-screen {
-            position: fixed; inset: 0; background: #000; z-index: 10000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        
-        .logo-box {
-            border: 2px solid var(--gold-primary); padding: 20px 40px;
-            text-align: center; box-shadow: 0 0 30px rgba(212,175,55,0.2);
-            margin-bottom: 40px; animation: flicker 3s infinite;
-        }
-        
-        .logo-text { font-size: 2.5rem; letter-spacing: 5px; color: var(--gold-primary); }
-        .logo-sub { font-family: var(--tech-font); font-size: 0.9rem; color: #666; letter-spacing: 2px; }
-
-        .login-field {
-            background: transparent; border: none; border-bottom: 2px solid #333;
-            color: var(--gold-primary); font-family: var(--tech-font); font-size: 2rem;
-            text-align: center; width: 200px; outline: none; transition: 0.3s;
-            letter-spacing: 8px;
-        }
-        .login-field:focus { border-color: var(--gold-primary); width: 250px; }
-        
-        .access-btn {
-            margin-top: 30px; background: var(--gold-primary); color: #000;
-            border: none; padding: 15px 50px; font-weight: bold; cursor: pointer;
-            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
-            transition: 0.2s;
-        }
-        .access-btn:active { transform: scale(0.95); background: #fff; }
-
-        /* --- 2. MAIN INTERFACE --- */
-        #interface { display: none; height: 100vh; grid-template-rows: 50px 1fr 40px; }
-
-        /* HEADER */
-        header {
-            background: var(--panel-bg); border-bottom: 1px solid #222;
-            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
-        }
-        .sys-status { font-family: var(--tech-font); font-size: 0.8rem; color: var(--signal-green); }
-
-        /* LAYOUT GRID */
-        .main-grid {
-            display: grid; grid-template-columns: 1fr 320px;
-            overflow: hidden; height: 100%;
-        }
-
-        /* CHART SECTION */
-        .chart-section { position: relative; border-right: 1px solid #222; }
-        .overlay-info {
-            position: absolute; top: 10px; left: 10px; z-index: 10;
-            display: flex; gap: 10px;
-        }
-        .info-badge {
-            background: rgba(0,0,0,0.8); border: 1px solid #333;
-            padding: 5px 10px; font-size: 0.7rem; color: #888; font-family: var(--tech-font);
-        }
-
-        /* RIGHT COMMAND CENTER */
-        .command-center {
-            background: var(--panel-bg); display: flex; flex-direction: column;
-            overflow-y: auto; border-left: 1px solid #333;
-        }
-
-        .panel-block {
-            padding: 15px; border-bottom: 1px solid #222;
-        }
-        
-        .panel-title {
-            color: var(--gold-primary); font-size: 0.9rem; margin-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        
-        /* SIGNAL METERS */
-        .signal-row {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 12px; background: #050505; padding: 8px; border-radius: 4px;
-        }
-        .tf-label { font-family: var(--tech-font); font-weight: bold; width: 40px; color: #fff; }
-        .meter-bg { flex: 1; height: 6px; background: #222; margin: 0 10px; border-radius: 3px; position: relative; }
-        .meter-fill { height: 100%; border-radius: 3px; transition: width 1s; }
-        .signal-text { font-size: 0.7rem; font-weight: bold; width: 60px; text-align: right; }
-
-        /* NEWS FEED MINI */
-        .news-scroller { height: 150px; overflow-y: scroll; font-size: 0.8rem; color: #aaa; }
-        .news-scroller::-webkit-scrollbar { width: 3px; }
-        .news-scroller::-webkit-scrollbar-thumb { background: #333; }
-
-        /* FOOTER */
-        footer {
-            background: #000; border-top: 1px solid var(--gold-dim);
-            display: flex; align-items: center;
-        }
-
-        /* ANIMATIONS */
-        @keyframes flicker { 0%, 100% { opacity: 1; box-shadow: 0 0 30px rgba(212,175,55,0.2); } 50% { opacity: 0.8; box-shadow: 0 0 10px rgba(212,175,55,0.1); } }
-        .blink { animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        /* MOBILE OPTIMIZATION */
-        @media (max-width: 768px) {
-            .main-grid { grid-template-columns: 1fr; grid-template-rows: 50% 50%; }
-            .chart-section { height: 100%; }
-            .command-center { height: 100%; border-left: none; border-top: 2px solid var(--gold-primary); }
-            #interface { grid-template-rows: 50px 1fr; } /* Hide footer on small mobile if crowded */
-            footer { display: none; }
-            .login-field { width: 80%; }
-        }
+        body { background-color: #0f172a; color: white; }
+        .neon-border { border: 1px solid #00f2ff; box-shadow: 0 0 15px #00f2ff; }
+        .gold-border { border: 1px solid #ffd700; box-shadow: 0 0 15px #ffd700; }
+        .card-hover:hover { transform: scale(1.05); transition: 0.3s; cursor: pointer; }
+        .bg-glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
 
-    <div id="boot-screen">
-        <div class="logo-box">
-            <div class="logo-text">KANDAR</div>
-            <div class="logo-sub">QUANTUM CAPITAL SYSTEM</div>
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center bg-glass p-6 rounded-2xl mb-8 neon-border">
+        <div class="text-left">
+            <h1 class="text-3xl font-bold text-cyan-400">KANDAR <span class="text-white">CENTRAL</span></h1>
+            <p class="text-gray-400 text-sm">Selamat datang di Arena Bermain</p>
         </div>
-        
-        <div style="font-family:var(--tech-font); color:#444; margin-bottom:10px;">ENTER SECURITY PIN</div>
-        <input type="tel" id="pinInput" class="login-field" maxlength="6" placeholder="******">
-        
-        <button onclick="systemAccess()" class="access-btn">INITIALIZE SYSTEM</button>
-        <div id="error-log" style="color:var(--signal-red); margin-top:20px; font-family:var(--tech-font); display:none;">> ERROR: INVALID CREDENTIALS</div>
+        <div class="mt-4 md:mt-0 text-center md:text-right">
+            <p class="text-gray-300">Saldo Akun:</p>
+            <h2 class="text-2xl font-bold text-yellow-400">Rp <span id="saldo">0</span></h2>
+            <a href="https://wa.me/6289531081734?text=Bang%20Kandar,%20saya%20mau%20isi%20saldo%20DANA" 
+               class="inline-block mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded-full text-sm font-bold transition">
+               + ISI SALDO (VIA DANA)
+            </a>
+        </div>
     </div>
 
-    <div id="interface">
+    <div class="max-w-6xl mx-auto mb-6 flex space-x-4 overflow-x-auto pb-2">
+        <button class="bg-cyan-600 px-6 py-2 rounded-lg font-bold">SEMUA MEJA</button>
+        <button class="bg-gray-800 px-6 py-2 rounded-lg font-bold hover:bg-gray-700">PREMIUM</button>
+        <button class="bg-gray-800 px-6 py-2 rounded-lg font-bold hover:bg-gray-700">VIP</button>
+    </div>
+
+    <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
-        <header>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <i class="fas fa-shield-alt" style="color:var(--gold-primary)"></i>
-                <span style="font-weight:bold; letter-spacing:1px;">KANDAR<span style="color:var(--gold-primary)">CAPITAL</span></span>
+        <div class="card-hover bg-gray-900 rounded-xl overflow-hidden neon-border">
+            <div class="h-32 bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
+                <span class="text-4xl">🎮</span>
             </div>
-            <div class="sys-status">
-                <span class="blink">●</span> LIVE FEED | LONDON SESSION
-            </div>
-        </header>
-
-        <div class="main-grid">
-            
-            <div class="chart-section">
-                <div class="overlay-info">
-                    <div class="info-badge">XAUUSD</div>
-                    <div class="info-badge" style="color:var(--gold-primary)">M15</div>
-                </div>
-                <div class="tradingview-widget-container" style="height:100%;width:100%">
-                    <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                    {
-                    "autosize": true,
-                    "symbol": "OANDA:XAUUSD",
-                    "interval": "15",
-                    "timezone": "Asia/Jakarta",
-                    "theme": "dark",
-                    "style": "1",
-                    "locale": "id",
-                    "enable_publishing": false,
-                    "hide_top_toolbar": false,
-                    "hide_legend": false,
-                    "save_image": false,
-                    "backgroundColor": "rgba(0, 0, 0, 1)",
-                    "gridColor": "rgba(30, 30, 30, 1)",
-                    "support_host": "https://www.tradingview.com"
-                    }
-                    </script>
-                </div>
-            </div>
-
-            <div class="command-center">
-                
-                <div class="panel-block" style="text-align:center;">
-                    <div id="clock" style="font-family:var(--tech-font); font-size:2rem; color:#fff;">00:00:00</div>
-                    <div style="font-size:0.8rem; color:#666;">SERVER TIME (WIB)</div>
-                </div>
-
-                <div class="panel-block">
-                    <div class="panel-title">
-                        <span><i class="fas fa-crosshairs"></i> SIGNAL MATRIX</span>
-                        <i class="fas fa-wifi" style="color:var(--signal-green)"></i>
-                    </div>
-                    
-                    <div class="signal-row">
-                        <div class="tf-label">M5</div>
-                        <div class="meter-bg"><div class="meter-fill" style="width:80%; background:var(--signal-green)"></div></div>
-                        <div class="signal-text" style="color:var(--signal-green)">BUY</div>
-                    </div>
-                    <div class="signal-row">
-                        <div class="tf-label">M15</div>
-                        <div class="meter-bg"><div class="meter-fill" style="width:60%; background:var(--signal-green)"></div></div>
-                        <div class="signal-text" style="color:var(--signal-green)">STRONG</div>
-                    </div>
-                    <div class="signal-row">
-                        <div class="tf-label">H1</div>
-                        <div class="meter-bg"><div class="meter-fill" style="width:40%; background:#888"></div></div>
-                        <div class="signal-text" style="color:#aaa">WAIT</div>
-                    </div>
-                    <div class="signal-row">
-                        <div class="tf-label">H4</div>
-                        <div class="meter-bg"><div class="meter-fill" style="width:70%; background:var(--signal-red)"></div></div>
-                        <div class="signal-text" style="color:var(--signal-red)">SELL</div>
-                    </div>
-                    
-                    <div style="font-size:0.7rem; color:#555; margin-top:10px; text-align:center;">
-                        AI CONFIDENCE: <span style="color:var(--gold-primary)">87.4%</span>
-                    </div>
-                </div>
-
-                <div class="panel-block" style="height:250px;">
-                    <div class="panel-title">LIVE SENTIMENT</div>
-                    <div class="tradingview-widget-container" style="height:100%;width:100%">
-                        <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
-                        {
-                        "interval": "15m",
-                        "width": "100%",
-                        "isTransparent": true,
-                        "height": "100%",
-                        "symbol": "OANDA:XAUUSD",
-                        "showIntervalTabs": true,
-                        "displayMode": "single",
-                        "locale": "id",
-                        "colorTheme": "dark"
-                        }
-                        </script>
-                    </div>
-                </div>
-
-                <div class="panel-block" style="flex:1;">
-                    <div class="panel-title">HIGH IMPACT NEWS</div>
-                    <div class="tradingview-widget-container" style="height:100%;width:100%">
-                        <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-                        {
-                        "colorTheme": "dark",
-                        "isTransparent": true,
-                        "width": "100%",
-                        "height": "100%",
-                        "locale": "id",
-                        "importanceFilter": "0,1",
-                        "currencyFilter": "USD"
-                        }
-                        </script>
-                    </div>
-                </div>
-
+            <div class="p-4">
+                <h3 class="font-bold text-lg text-cyan-300">MEJA ARCADE 01</h3>
+                <p class="text-sm text-gray-400 mt-1">Taruhan Min: Rp 5.000</p>
+                <button onclick="pilihMeja('Meja Arcade 01')" class="w-full mt-4 bg-cyan-600 py-2 rounded-lg font-bold hover:bg-cyan-400 text-black transition">MASUK MEJA</button>
             </div>
         </div>
 
-        <footer>
-            <div class="tradingview-widget-container">
-                <div class="tradingview-widget-container__widget"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-                {
-                "symbols": [
-                    {"proName": "OANDA:XAUUSD", "title": "GOLD"},
-                    {"proName": "FX:EURUSD", "title": "EUR/USD"},
-                    {"proName": "FX:GBPUSD", "title": "GBP/USD"},
-                    {"proName": "INDEX:DXY", "title": "DXY"}
-                ],
-                "showSymbolLogo": true,
-                "colorTheme": "dark",
-                "isTransparent": true,
-                "displayMode": "compact",
-                "locale": "id"
-                }
-                </script>
+        <div class="card-hover bg-gray-900 rounded-xl overflow-hidden neon-border">
+            <div class="h-32 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                <span class="text-4xl">⚔️</span>
             </div>
-        </footer>
+            <div class="p-4">
+                <h3 class="font-bold text-lg text-purple-300">STRATEGI VIP</h3>
+                <p class="text-sm text-gray-400 mt-1">Taruhan Min: Rp 10.000</p>
+                <button onclick="pilihMeja('Strategi VIP')" class="w-full mt-4 bg-purple-600 py-2 rounded-lg font-bold hover:bg-purple-400 text-white transition">MASUK MEJA</button>
+            </div>
+        </div>
+
+        <div class="card-hover bg-gray-900 rounded-xl overflow-hidden gold-border">
+            <div class="h-32 bg-gradient-to-r from-yellow-500 to-red-600 flex items-center justify-center">
+                <span class="text-4xl">🏆</span>
+            </div>
+            <div class="p-4">
+                <h3 class="font-bold text-lg text-yellow-400">TOURNAMENT ROOM</h3>
+                <p class="text-sm text-gray-400 mt-1">Taruhan Min: Rp 50.000</p>
+                <button onclick="pilihMeja('Tournament')" class="w-full mt-4 bg-yellow-600 py-2 rounded-lg font-bold hover:bg-yellow-400 text-black transition">MASUK MEJA</button>
+            </div>
+        </div>
+
+        <div class="card-hover bg-gray-900 rounded-xl overflow-hidden neon-border">
+            <div class="h-32 bg-gradient-to-r from-green-500 to-emerald-700 flex items-center justify-center">
+                <span class="text-4xl">🃏</span>
+            </div>
+            <div class="p-4">
+                <h3 class="font-bold text-lg text-green-300">MEJA CLASSIC</h3>
+                <p class="text-sm text-gray-400 mt-1">Taruhan Min: Rp 2.000</p>
+                <button onclick="pilihMeja('Classic')" class="w-full mt-4 bg-green-600 py-2 rounded-lg font-bold hover:bg-green-400 text-black transition">MASUK MEJA</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="max-w-6xl mx-auto mt-12 text-center text-gray-500 text-xs">
+        <p>&copy; 2026 Kandar Capital Platform. Semua pembayaran melalui DANA: 089531081734</p>
     </div>
 
     <script>
-        // LOGIC LOGIN
-        function systemAccess() {
-            var pin = document.getElementById('pinInput').value;
-            if(pin === "258369") {
-                // Efek Masuk
-                document.getElementById('boot-screen').style.transition = "0.5s";
-                document.getElementById('boot-screen').style.transform = "translateY(-100%)";
-                
-                setTimeout(() => {
-                    document.getElementById('interface').style.display = "grid";
-                }, 300);
+        function pilihMeja(namaMeja) {
+            let saldo = document.getElementById('saldo').innerText;
+            if (parseInt(saldo) <= 0) {
+                alert("Saldo Anda Rp 0. Silakan klik 'ISI SALDO' dan kirim bukti transfer ke Bang Kandar di 089531081734.");
             } else {
-                var err = document.getElementById('error-log');
-                err.style.display = "block";
-                document.getElementById('pinInput').value = "";
-                setTimeout(() => { err.style.display = "none"; }, 2000);
+                alert("Selamat datang di " + namaMeja + "! Tunggu admin membuka kunci meja.");
             }
         }
-
-        // JAM DIGITAL
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB');
-        }, 1000);
-
-        // AUTO FOCUS
-        window.onload = function() {
-            document.getElementById('pinInput').focus();
-        };
     </script>
 </body>
 </html>
